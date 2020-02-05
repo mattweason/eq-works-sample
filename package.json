@@ -2,10 +2,10 @@
   "name": "ws-product-nodejs",
   "version": "0.1.0",
   "description": "API work samples",
-  "main": "index.js",
+  "main": "server/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,7 +20,9 @@
   "homepage": "https://github.com/EQWorks/ws-product-nodejs#readme",
   "dependencies": {
     "express": "^4.15.3",
-    "pg": "^6.2.4"
+    "moment": "^2.24.0",
+    "pg": "^6.2.4",
+    "redis": "^2.8.0"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

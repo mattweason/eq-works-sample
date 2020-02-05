@@ -1,10 +1,25 @@
-const express = require('express')
-const pg = require('pg')
+const express = require('express');
+const pg = require('pg');
+const app = express();
 
-const app = express()
+// Database configuration
+const PGHOST = 'work-samples-db.cx4wctygygyq.us-east-1.rds.amazonaws.com';
+const PGDATABASE = 'work_samples';
+const PGUSER = 'readonly';
+const PGPASSWORD = 'w2UIO@#bg532!';
+
+const config = {
+  host: PGHOST,
+  user: PGUSER, // name of the user account
+  password: PGPASSWORD,
+  database: PGDATABASE, // name of the database
+  max: 10, // max number of clients in the pool
+  idleTimeoutMillis: 30000 // how long a client is allowed to remain idle before being closed
+}
+
 // configs come from standard PostgreSQL env vars
 // https://www.postgresql.org/docs/9.6/static/libpq-envars.html
-const pool = new pg.Pool()
+const pool = new pg.Pool(config);
 
 const queryHandler = (req, res, next) => {
   pool.query(req.sqlQuery).then((r) => {
