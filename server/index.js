@@ -2,6 +2,8 @@ const express = require('express');
 const pg = require('pg');
 const app = express();
 
+const rateLimit = require('./rate-limit'); //API rate limiter
+
 // Database configuration
 const PGHOST = 'work-samples-db.cx4wctygygyq.us-east-1.rds.amazonaws.com';
 const PGDATABASE = 'work_samples';
@@ -26,6 +28,8 @@ const queryHandler = (req, res, next) => {
     return res.json(r.rows || [])
   }).catch(next)
 }
+
+app.use(rateLimit); //Attach rate limiter
 
 app.get('/', (req, res) => {
   res.send('Welcome to EQ Works 😎')
