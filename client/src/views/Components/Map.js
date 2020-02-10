@@ -168,7 +168,7 @@ class POIMap extends React.Component {
         for(let place in metrics){
             let entry = metrics[place];
             for(let i = 0; i < metricProps.length; i++){
-                mapCircleElements[metricProps[i]].push(<MapCircle key={place} lat={entry.lat} lng={entry.lng} color={metricPropsColors[i]} size={this.calculateCircleSize(entry[metricProps[i]], metricProps[i])} />)
+                mapCircleElements[metricProps[i]].push(<MapCircle metricProp={metricProps[i]} metricValue={entry[metricProps[i]]} key={place} lat={entry.lat} lng={entry.lng} color={metricPropsColors[i]} size={this.calculateCircleSize(entry[metricProps[i]], metricProps[i])} />)
             }
         }
 
@@ -194,6 +194,8 @@ class POIMap extends React.Component {
         return this.state.mapCircleElements[metricProp];
     }
 
+    render
+
     handleDateChange = date => {
         this.setState({selectedDate: date}, () => {
             filteredMetrics = this.filterMetrics();
@@ -215,6 +217,7 @@ class POIMap extends React.Component {
                         options={this.props.otherOptions}
 
                     >
+
                         { this.state.metricsBool.impressions ? this.renderMapCircles('impressions') : null }
                         { this.state.metricsBool.clicks ? this.renderMapCircles('clicks') : null }
                         { this.state.metricsBool.revenue ? this.renderMapCircles('revenue') : null }

@@ -10,3 +10,10 @@
     user-select: none;
     transform: translate(-50%, -50%);
 }
+
+.value{
+    position: absolute;
+    background-color: #fff;
+    border-radius: 3px;
+    padding: 6px 6px;
+}
