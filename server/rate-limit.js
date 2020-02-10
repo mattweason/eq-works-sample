@@ -1,6 +1,14 @@
 const moment = require('moment');
 const redis = require('redis');
-const client = redis.createClient();
+if(process.env.REDISTOGO_URL){
+    const rtg   = require("url").parse(process.env.REDISTOGO_URL);
+    const client = require("redis").createClient(rtg.port, rtg.hostname);
+    client.auth(rtg.auth.split(":")[1]);
+} else{
+    const client = require("redis").createClient();
+}
+
+
 
 module.exports = (req,res,next) => {
 
