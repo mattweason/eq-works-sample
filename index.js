@@ -2,6 +2,7 @@ const express = require('express');
 const pg = require('pg');
 const app = express();
 const cors = require('cors');
+const path = require('path');
 
 const rateLimit = require('./rate-limit'); //API rate limiter
 
@@ -30,13 +31,9 @@ const queryHandler = (req, res, next) => {
   }).catch(next)
 }
 
-app.get('/', (req, res) => {
-  res.send('Welcome to EQ Works 😎')
-})
-
 app.use(cors({origin: 'http://localhost:3000'}))
 app.use(rateLimit); //Attach rate limiter
-
+app.use(express.static(path.join(__dirname, 'build')));
 
 app.get('/events/hourly', (req, res, next) => {
   req.sqlQuery = `

@@ -2,10 +2,10 @@
   "name": "ws-product-nodejs",
   "version": "0.1.0",
   "description": "API work samples",
-  "main": "server/index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server/index.js",
-    "dev": "nodemon server/index.js",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,9 +22,10 @@
     "cors": "^2.8.5",
     "express": "^4.15.3",
     "moment": "^2.24.0",
+    "nodemon": "^1.11.0",
+    "path": "^0.12.7",
     "pg": "^6.2.4",
     "redis": "^2.8.0",
-    "nodemon": "^1.11.0",
     "url": "^0.11.0"
   },
   "devDependencies": {
