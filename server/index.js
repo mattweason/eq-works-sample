@@ -1,6 +1,7 @@
 const express = require('express');
 const pg = require('pg');
 const app = express();
+const cors = require('cors');
 
 const rateLimit = require('./rate-limit'); //API rate limiter
 
@@ -29,15 +30,17 @@ const queryHandler = (req, res, next) => {
   }).catch(next)
 }
 
-app.use(rateLimit); //Attach rate limiter
-
 app.get('/', (req, res) => {
   res.send('Welcome to EQ Works 😎')
 })
 
+app.use(cors({origin: 'http://localhost:3000'}))
+app.use(rateLimit); //Attach rate limiter
+
+
 app.get('/events/hourly', (req, res, next) => {
   req.sqlQuery = `
-    SELECT date, hour, events
+    SELECT *
     FROM public.hourly_events
     ORDER BY date, hour
     LIMIT 168;
@@ -58,7 +61,7 @@ app.get('/events/daily', (req, res, next) => {
 
 app.get('/stats/hourly', (req, res, next) => {
   req.sqlQuery = `
-    SELECT date, hour, impressions, clicks, revenue
+    SELECT *
     FROM public.hourly_stats
     ORDER BY date, hour
     LIMIT 168;
@@ -84,6 +87,32 @@ app.get('/poi', (req, res, next) => {
   req.sqlQuery = `
     SELECT *
     FROM public.poi;
+  `
+  return next()
+}, queryHandler)
+
+app.get('/poi-stats/daily', (req, res, next) => {
+  req.sqlQuery = `
+    SELECT s.date, 
+        CAST(SUM(s.impressions) as int) AS impressions,
+        CAST(SUM(s.clicks) as int) AS clicks,
+        CAST(SUM(s.revenue) as float) AS revenue,
+        p.name AS name,
+        p.lat AS lat,
+        p.lon AS lng,
+        CASE WHEN e.events IS NULL THEN CAST(0 as int) ELSE CAST(e.events as int) END AS events
+    FROM public.hourly_stats s
+    INNER JOIN public.poi p on s.poi_id = p.poi_id
+    LEFT JOIN (
+        SELECT e.date,
+            e.poi_id,
+            SUM(e.events) AS events
+        FROM public.hourly_events e
+        GROUP BY e.date, e.poi_id
+    ) e on s.poi_id = e.poi_id and s.date = e.date
+    GROUP BY s.date, s.poi_id, p.name, p.lat, p.lon, e.events
+    ORDER BY date
+    LIMIT 168;
   `
   return next()
 }, queryHandler)

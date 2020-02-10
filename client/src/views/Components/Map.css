@@ -1,0 +1,9 @@
+.map-wrapper{
+    width: 60%;
+    position: relative;
+    height: 540px;
+}
+
+.checkbox-wrapper{
+    padding: 20px 40px;
+}

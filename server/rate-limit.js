@@ -5,7 +5,7 @@ const client = redis.createClient();
 module.exports = (req,res,next) => {
 
     //Rate limit constants
-    const maxLimit = 60; //Max requests allowed
+    const maxLimit = 1000; //Max requests allowed
     const windowSize  = 15; //Window duration in minutes
 
     //Determine request keys for rate limit redis queries
