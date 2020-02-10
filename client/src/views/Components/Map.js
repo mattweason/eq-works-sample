@@ -231,12 +231,12 @@ class POIMap extends React.Component {
                                 disableToolbar
                                 variant="inline"
                                 format="MM/dd/yyyy"
-                                minDate={this.state.dateRange[0]}
-                                maxDate={this.state.dateRange[this.state.dateRange.length - 1]}
+                                minDate={moment(this.state.dateRange[0]).add(12, 'hours')}
+                                maxDate={moment(this.state.dateRange[this.state.dateRange.length - 1]).add(12, 'hours')}
                                 margin="normal"
                                 id="date-picker-inline"
                                 label="Date picker inline"
-                                value={moment(this.state.selectedDate)}
+                                value={moment(this.state.selectedDate).add(12, 'hours')} //Fix for heroku's server time not matching
                                 onChange={this.handleDateChange}
                                 KeyboardButtonProps={{
                                     'aria-label': 'change date',
