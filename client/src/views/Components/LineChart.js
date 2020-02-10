@@ -21,12 +21,12 @@ class LineChart extends React.Component {
     callAPI() {
         let stats = [];
         let events = [];
-        fetch("http://localhost:5555/stats/daily")
+        fetch("/stats/daily")
             .then(res => res.text())
             .then(res => {
                 stats = res;
 
-                return fetch('http://localhost:5555/events/daily'); // make a 2nd request and return a promise
+                return fetch('/events/daily'); // make a 2nd request and return a promise
             })
             .then(res => res.text())
             .then(res => {
