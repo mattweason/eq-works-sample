@@ -30,6 +30,7 @@ class App extends React.Component {
             <div className="App">
                 <div className="card">
                     <h2>Impressions/Clicks vs Revenue/Walk-in Events</h2>
+                    <p>Click on a metric in the legend to toggle it on and off.</p>
                     <div className="chart-container">
                         <div className="line-chart">
                             <LineChart metrics={['impressions', 'clicks']} />
