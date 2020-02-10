@@ -1,6 +1,6 @@
 ### To Run
 
-```REPLACE THIS```
+```git clone https://github.com/mattweason/eq-works-sample.git```
 
 ```cd Simple-React-Express-App```
 
