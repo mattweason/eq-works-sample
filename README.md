@@ -2,7 +2,7 @@
 
 ```git clone https://github.com/mattweason/eq-works-sample.git```
 
-```cd Simple-React-Express-App```
+```cd eq-works-sample```
 
 #### Start Backend
 
