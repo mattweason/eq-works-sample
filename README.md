@@ -4,18 +4,8 @@
 
 ```cd eq-works-sample```
 
-#### Start Backend
+#### Start Server
 
 ```npm install```
 
-```npm run dev``` This will start the backend server.
-
-#### Start Frontend
-
-```cd client```
-
-```npm install```
-
-```npm start``` This will start the React App.
-
-
+```node index.js``` This will start app.
