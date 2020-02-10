@@ -1,17 +1,21 @@
 import React from "react";
 import _ from 'underscore';
+import moment from 'moment';
 import GoogleMapReact  from 'google-map-react';
 import MarkerClusterer from '@google/markerclusterer';
 import MapCircle from './MapCircle'
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import DateFnsUtils from '@date-io/date-fns';
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import './Map.css'
 
 let metricProps = ['impressions', 'clicks', 'revenue'];
 let metricPropsColors = ['255,0,0','0,255,0','0,0,255'];
 let maxRadius = 100; //Max circle radius for poi metrics on map
 let metricRatios = {}; //For relating data value to circle size on the map
+let filteredMetrics = '' //Stores all the metric poi data filtered to the selected date
 
 let googleMapsRef = '';
 let googleMapRef = '';
@@ -21,10 +25,10 @@ let markerCluster = '';
 class POIMap extends React.Component {
     static defaultProps = {
         center: {
-            lat: 43.6532,
-            lng: -79.3832
+            lat: 43.369765,
+            lng: -79.424882
         },
-        zoom: 13,
+        zoom: 9,
         otherOptions: {
             minZoom: 5,
             maxZoom: 16
@@ -42,7 +46,9 @@ class POIMap extends React.Component {
                 clicks: false,
                 revenue: false,
                 events: true
-            } //Determines whether or not a metric is displayed on the map
+            }, //Determines whether or not a metric is displayed on the map
+            dateRange: '', //Full date range of available data
+            selectedDate: ''
         }
     }
 
@@ -52,7 +58,13 @@ class POIMap extends React.Component {
         script.async = true
         document.body.appendChild(script)
 
-        this.packageMetrics(); //Once component is mounted aggregate metrics for the map circles
+        this.setState({dateRange: _.uniq(_.pluck(this.props.data, 'date'))}, () => {
+            this.setState({selectedDate: this.state.dateRange[0] }, () => {
+                filteredMetrics = this.filterMetrics();
+                this.packageMetrics(); //Once component is mounted aggregate metrics for the map circles
+            }); //Set default date to first date of available data
+        })
+
     }
 
     handleApiLoaded (map, maps) {
@@ -80,7 +92,10 @@ class POIMap extends React.Component {
 
     }
 
+
     renderEventMarkers(){
+        if(markerCluster)
+            markerCluster.clearMarkers();
 
         if(this.state.metricsBool.events){
             let locations = this.getEventMarkers()
@@ -93,31 +108,38 @@ class POIMap extends React.Component {
                 gridSize: 10,
                 minimumClusterSize: 2
             })
-        } else {
-            markerCluster.clearMarkers();
         }
-
-
     }
 
     getEventMarkers(){
         let locations = [];
 
-            for(let i = 0; i < this.props.data.length; i++){
-                let item = this.props.data[i];
+            for(let i = 0; i < filteredMetrics.length; i++){
+                let item = filteredMetrics[i];
 
-                if(item.events > 0)
+                for(let c = 0; c < item.events; c++){
                     locations.push({lat: item.lat, lng: item.lng})
+                }
             }
 
         return locations;
     }
 
+    filterMetrics(){
+        let date = moment(this.state.selectedDate);
+        let filteredData = _.filter(this.props.data, (item) => {
+            let itemDate = moment(item.date, 'll')
+            return itemDate.isSame(date, 'day')
+        })
+
+        return filteredData;
+    }
+
     packageMetrics(){
         let metrics = {};
 
-        for(let i = 0; i < this.props.data.length; i++){
-            let item = this.props.data[i];
+        for(let i = 0; i < filteredMetrics.length; i++){
+            let item = filteredMetrics[i];
 
             if(metrics.hasOwnProperty(item.name)){
                 for(let c = 0; c < metricProps.length; c++)
@@ -133,20 +155,18 @@ class POIMap extends React.Component {
             }
         }
 
-        this.setState({ metrics: metrics }, () => {
-            this.bundleMapCircleElements(); //Once we have the data, bundle into map friendly react elements
-        });
+        this.bundleMapCircleElements(metrics); //Once we have the data, bundle into map friendly react elements
     }
 
-    bundleMapCircleElements(){
-        this.calculateMetricRatios();
+    bundleMapCircleElements(metrics){
+        this.calculateMetricRatios(metrics);
         let mapCircleElements = {};
 
         for(let i = 0; i < metricProps.length; i++){
             mapCircleElements[metricProps[i]] = [];
         }
-        for(let place in this.state.metrics){
-            let entry = this.state.metrics[place];
+        for(let place in metrics){
+            let entry = metrics[place];
             for(let i = 0; i < metricProps.length; i++){
                 mapCircleElements[metricProps[i]].push(<MapCircle key={place} lat={entry.lat} lng={entry.lng} color={metricPropsColors[i]} size={this.calculateCircleSize(entry[metricProps[i]], metricProps[i])} />)
             }
@@ -156,9 +176,9 @@ class POIMap extends React.Component {
     }
 
 
-    calculateMetricRatios(){
+    calculateMetricRatios(metrics){
         for(let i = 0; i < metricProps.length; i++){
-            let metricMax = _.max(_.pluck(this.state.metrics, metricProps[i]));
+            let metricMax = _.max(_.pluck(metrics, metricProps[i]));
 
             metricRatios[metricProps[i]] = metricMax / (Math.PI * Math.pow(maxRadius, 2)); //Create scale for current metric property based on max circle radius
         }
@@ -174,6 +194,14 @@ class POIMap extends React.Component {
         return this.state.mapCircleElements[metricProp];
     }
 
+    handleDateChange = date => {
+        this.setState({selectedDate: date}, () => {
+            filteredMetrics = this.filterMetrics();
+            this.renderEventMarkers()
+            this.packageMetrics();
+        });
+    };
+
     render() {
         return (
             <div className="flex-row">
@@ -185,13 +213,34 @@ class POIMap extends React.Component {
                         defaultCenter={this.props.center}
                         defaultZoom={this.props.zoom}
                         options={this.props.otherOptions}
+
                     >
                         { this.state.metricsBool.impressions ? this.renderMapCircles('impressions') : null }
                         { this.state.metricsBool.clicks ? this.renderMapCircles('clicks') : null }
                         { this.state.metricsBool.revenue ? this.renderMapCircles('revenue') : null }
                     </GoogleMapReact>
                 </div>
+
                 <div className="checkbox-wrapper">
+                    { this.state.selectedDate ?
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                            <KeyboardDatePicker
+                                disableToolbar
+                                variant="inline"
+                                format="MM/dd/yyyy"
+                                minDate={this.state.dateRange[0]}
+                                maxDate={this.state.dateRange[this.state.dateRange.length - 1]}
+                                margin="normal"
+                                id="date-picker-inline"
+                                label="Date picker inline"
+                                value={moment(this.state.selectedDate)}
+                                onChange={this.handleDateChange}
+                                KeyboardButtonProps={{
+                                    'aria-label': 'change date',
+                                }}
+                            />
+                        </MuiPickersUtilsProvider>
+                    : null }
                     <FormGroup row>
                         <FormControlLabel
                             control={

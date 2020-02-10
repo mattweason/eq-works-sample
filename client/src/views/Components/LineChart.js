@@ -55,13 +55,10 @@ class LineChart extends React.Component {
 
         let datasets = [];
 
-        console.log(this.props.metrics)
         const keys = Object.keys(data[0]);
         const metrics = _.filter(keys, _.partial(_.contains, this.props.metrics))
-        console.log(metrics)
 
         for (let i = 0; i < metrics.length; i++) { //Skip 'date' which is first key
-            console.log(lineColors[metrics[i]])
             const dataset = {
                 label: metrics[i],
                 fill: false,
