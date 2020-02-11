@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const pg = require('pg');
 const app = express();
@@ -6,17 +7,11 @@ const path = require('path');
 
 const rateLimit = require('./rate-limit'); //API rate limiter
 
-// Database configuration
-const PGHOST = 'work-samples-db.cx4wctygygyq.us-east-1.rds.amazonaws.com';
-const PGDATABASE = 'work_samples';
-const PGUSER = 'readonly';
-const PGPASSWORD = 'w2UIO@#bg532!';
-
 const config = {
-  host: PGHOST,
-  user: PGUSER, // name of the user account
-  password: PGPASSWORD,
-  database: PGDATABASE, // name of the database
+  host: process.env.PGHOST,
+  user: process.env.PGUSER, // name of the user account
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE, // name of the database
   max: 10, // max number of clients in the pool
   idleTimeoutMillis: 30000 // how long a client is allowed to remain idle before being closed
 }
