@@ -194,8 +194,6 @@ class POIMap extends React.Component {
         return this.state.mapCircleElements[metricProp];
     }
 
-    render
-
     handleDateChange = date => {
         this.setState({selectedDate: date}, () => {
             filteredMetrics = this.filterMetrics();
